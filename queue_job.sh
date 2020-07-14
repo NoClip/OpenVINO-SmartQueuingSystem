@@ -15,10 +15,6 @@ PEOPLE=$6
 
 mkdir -p $5
 
-ls /data/resources >ll
-echo ---------------------------------------------------------
-ls /data >lll
-
 if echo "$DEVICE" | grep -q "FPGA"; then # if device passed in is FPGA, load bitstream to program FPGA
     #Environment variables and compilation for edge compute nodes with FPGAs
     export AOCL_BOARD_PACKAGE_ROOT=/opt/intel/openvino/bitstreams/a10_vision_design_sg2_bitstreams/BSP/a10_1150_sg2

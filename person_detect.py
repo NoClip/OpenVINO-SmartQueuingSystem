@@ -68,15 +68,12 @@ class PersonDetect:
         image_copy = self.preprocess_input(image)
         self.net.start_async(request_id=0, inputs={self.input_name: image_copy})
         
-        #input_dict={self.input_name:image}  
-        #self.net.infer(input_dict)
-        
         waiting = self.net.requests[0].wait(-1)
 
         if waiting == 0:
             output = self.net.requests[0].outputs[self.output_name]
         
-        coords = self.preprocess_outputs(output)
+        coords = self.preprocess_outputs(output, image)
         
         return coords, self.draw_outputs(coords, image)
     
@@ -85,7 +82,8 @@ class PersonDetect:
         TODO: This method needs to be completed by you
         '''
         colors = {"BLUE": (255,0,0), "GREEN": (0,255,0), "RED": (0,0,255)}
-        out_color = colors.get("BLUE")
+        out_color = colors.get("RED")
+        thickness = 2
         
         #coords = preprocess_outputs(coords)
         
@@ -95,11 +93,11 @@ class PersonDetect:
             xmax = coord[2]
             ymax = coord[3]
             
-            cv2.rectangle(image, (xmin, ymin), (xmax, ymax), out_color, 1)
+            cv2.rectangle(image, (xmin, ymin), (xmax, ymax), out_color, thickness)
 
         return image
 
-    def preprocess_outputs(self, outputs):
+    def preprocess_outputs(self, outputs, image):
         '''
         TODO: This method needs to be completed by you
         '''
@@ -108,12 +106,16 @@ class PersonDetect:
         #initials (1920, 1080)
         #output_shape [1, 1, 200, 7]
         #input_shape [1, 3, 320, 544]
+        #image.shape (1080, 1920, 3)
         
         #print('outputshape')
         #print(self.output_shape)
         #print(self.input_shape)
-        n, c, h, w = self.output_shape
         
+        #print("image.shape", image.shape)
+        #n, c, h, w = self.output_shape
+        
+        h, w = image.shape[0:2]
         coords = []
         
         for box in outputs[0][0]: 
@@ -137,7 +139,7 @@ class PersonDetect:
         
         image = cv2.resize(image, (w, h))
         image = image.transpose((2, 0, 1))
-        image = image.reshape((1, 3, h, w))
+        image = image.reshape((n, c, h, w))
         return image
 
 
